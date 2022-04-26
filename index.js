@@ -32,9 +32,9 @@ app.get('/keyboard/get', async (req, res) => {
     })
 })
 
-app.get('/keyboard/set/:name', async (req, res) => {
+app.get('/keyboard/set/:id', async (req, res) => {
     console.log(req.params)
-    const theme = req.params.name
+    const theme = req.params.id
     if (!theme) {
         res.send(400)
     } else {

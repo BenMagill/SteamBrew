@@ -2,7 +2,7 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 import {
-    KEYBOARD_STYLE_ID, KEYBOARD_THEME_DIR
+    KEYBOARD_STYLE_ID, KEYBOARD_THEME_DB, KEYBOARD_THEME_DIR
 } from "./constants.js"
 import { LocalStorageKeys } from './enums.js'
 import localStorage from "./localStorage.js"
@@ -15,6 +15,36 @@ const getKeyboardThemes = () => {
         }
     })
     return KeyboardThemes
+}
+
+class KeyBoardStore {
+    constructor() {
+        this.themes = JSON.parse(localStorage.getItem(KEYBOARD_THEME_DB))
+    }
+
+    save() {
+        localStorage.setItem(JSON.stringify(this.themes))
+    }
+
+    findById(id) {
+        
+    }
+    
+    findByName(name) {
+        
+    }
+    
+    getAll() {
+
+    }
+
+    add(data) {
+
+    }
+
+    delete(id) {
+
+    }
 }
 
 class Keyboard {
@@ -86,8 +116,8 @@ class Keyboard {
         return true
     }
 
-    async setTheme(name) {
-        if (name && this.availiableKeyboardThemes.includes(name)) {
+    async setTheme(id) {
+        if (id && this.availiableKeyboardThemes.includes(name)) {
             // TODO load theme css
             fs.readFile(KEYBOARD_THEME_DIR+"/"+name+".css", 'utf-8', (err, data) => {
                 if (err) throw err;
