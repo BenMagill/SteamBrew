@@ -1,6 +1,7 @@
 import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
+import { v4 } from 'uuid'
 import {
     KEYBOARD_STYLE_ID, KEYBOARD_THEME_DB, KEYBOARD_THEME_DIR
 } from "./constants.js"
@@ -18,8 +19,9 @@ const getKeyboardThemes = () => {
 }
 
 class KeyBoardStore {
+    // currently using an object using _id for key for easy access by id 
     constructor() {
-        this.themes = JSON.parse(localStorage.getItem(KEYBOARD_THEME_DB))
+        this.themes = JSON.parse(localStorage.getItem(KEYBOARD_THEME_DB)) || {}
     }
 
     save() {
@@ -27,29 +29,52 @@ class KeyBoardStore {
     }
 
     findById(id) {
-        
+        return this.themes[id] || null
     }
     
     findByName(name) {
-        
+        for (const _id in this.themes) {
+            if (Object.hasOwnProperty.call(this.themes, _id)) {
+                const theme = this.themes[_id];
+                if (theme.name == name) {
+                    return theme
+                }
+            }
+        }
     }
     
     getAll() {
-
+        let themes = []
+        for (const _id in this.themes) {
+            if (Object.hasOwnProperty.call(this.themes, _id)) {
+                themes.push(this.themes[_id]);
+            }
+        }
+        return themes
     }
 
-    add(data) {
-
+    add({ name, _id }) {
+        if (this.findById(_id) == null) {
+            this.themes[_id] = {
+                _id,
+                name
+            }
+            this.save()
+            return this.themes[_id]
+        }
+        return null
     }
 
-    delete(id) {
-
+    delete(_id) {
+        delete this.themes[_id]
     }
 }
 
 class Keyboard {
     constructor(mainTab) {
+        this.themes = new KeyBoardStore()
         this.availiableKeyboardThemes = getKeyboardThemes()
+        // _id of theme in use
         this.currentTheme = localStorage.getItem(LocalStorageKeys.KEYBOARD_CURRENT_THEME) 
         this.canModifyKeyboard = false
         this.mainTab = mainTab
@@ -82,14 +107,9 @@ class Keyboard {
         }
     }
 
-    reloadKnownThemes() {
-        this.availiableKeyboardThemes = getKeyboardThemes()
-        console.log(this.availiableKeyboardThemes)
-    }
-
-    setCurrentTheme(name) {
-        this.currentTheme = name
-        localStorage.setItem(LocalStorageKeys.KEYBOARD_CURRENT_THEME, name)
+    setCurrentTheme(_id) {
+        this.currentTheme = _id
+        localStorage.setItem(LocalStorageKeys.KEYBOARD_CURRENT_THEME, _id)
     }
 
     /**
@@ -100,8 +120,13 @@ class Keyboard {
      *  
      */
     async installTheme(info) {
-        const {name, url} = info
+        const {_id, name, url} = info
         let css;
+        
+        if (this.themes.findById(_id)) {
+            // TODO add updating theme
+            return false
+        }
         try {
             const result = await fetch(url);
             css = await result.text()
@@ -109,6 +134,18 @@ class Keyboard {
             console.log(e)
             return false
         }
+
+        let id;
+        
+        if (!_id) {
+            // manually provided
+            id = `manual_${v4()}`
+        } else {
+            id = _id
+        }
+
+
+
         await fs.writeFileSync(
             path.join(__dirname, '..', 'custom', 'keyboard_themes', (name+".css")),
             css    
