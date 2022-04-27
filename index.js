@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 app.get('/keyboard/get', async (req, res) => {
     console.log('getting themes')
     res.json({
-        themes: main.keyboard.availiableKeyboardThemes,
+        themes: main.keyboard.themeStore.getAll(),
         current: main.keyboard.currentTheme
     })
 })
@@ -50,9 +50,9 @@ app.get('/keyboard/reset', async (req, res) => {
 })
 
 app.post('/keyboard/install', async (req, res) => {
-    const {url, name} = req.body
+    const {_id, url, name} = req.body
     if (url && name) {
-        const result = await main.keyboard.installTheme({url, name})
+        const result = await main.keyboard.installTheme({_id, url, name})
         if (result) {
             res.send(200)
         } else {
@@ -61,10 +61,6 @@ app.post('/keyboard/install', async (req, res) => {
     }
 })
 
-app.get('/keyboard/reload_themes', async (req, res) => {
-    main.keyboard.reloadKnownThemes()
-    res.send(200)
-})    
 
 // keyboard theme handling ready
 app.get('/internal/keyboard/ready', async (req, res) => {
