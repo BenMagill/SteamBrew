@@ -21,14 +21,14 @@ app.use("/static", express.static(path.join(__dirname, 'manager/build')));
 
 app.get('/', (req, res) => {
     console.log("revieved message")
-    res.send('Hello World!')
+    res.send(200)
 })
 
 app.get('/keyboard/get', async (req, res) => {
     console.log('getting themes')
     res.json({
         themes: main.keyboard.themeStore.getAll(),
-        current: main.keyboard.currentTheme
+        current: main.keyboard.themeStore.findById(main.keyboard.currentTheme)
     })
 })
 

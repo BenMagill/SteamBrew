@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import path from 'path'
 import { v4 } from 'uuid'
 import {
-    KEYBOARD_STYLE_ID, KEYBOARD_THEME_DB, KEYBOARD_THEME_DIR
+    KEYBOARD_STYLE_ID, KEYBOARD_THEME_DB, KEYBOARD_THEME_DIR, __dirname
 } from "./constants.js"
 import { LocalStorageKeys } from './enums.js'
 import localStorage from "./localStorage.js"
@@ -25,7 +25,7 @@ class KeyBoardStore {
     }
 
     save() {
-        localStorage.setItem(JSON.stringify(this.themes))
+        localStorage.setItem(KEYBOARD_THEME_DB, JSON.stringify(this.themes))
     }
 
     findById(id) {
